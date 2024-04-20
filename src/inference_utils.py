@@ -3,7 +3,7 @@
 from typing import Optional
 
 from modal import gpu
-from modal.cls import ClsMixin
+#from modal.cls import ClsMixin
 
 from .common import (
     MODEL_PATH,
@@ -13,21 +13,23 @@ from .common import (
     get_model_path,
 )
 
-from llama_index.callbacks import CallbackManager
-from llama_index.llms import (
+from llama_index.core.callbacks import CallbackManager
+from llama_index.core.llms import (
     CustomLLM, 
     LLMMetadata, 
     CompletionResponse, 
     CompletionResponseGen,
 )
-from llama_index.llms.base import llm_completion_callback
+from llama_index.core.llms.callbacks import llm_completion_callback
 from typing import Any
 
+from pydantic import BaseModel, ValidationError, Extra
+
 @stub.cls(
-    gpu=gpu.A100(memory=20),
+    gpu=gpu.A100(memory=40),
     network_file_systems={VOL_MOUNT_PATH: output_vol},
 )
-class OpenLlamaLLM(CustomLLM, ClsMixin):
+class OpenLlamaLLM1(CustomLLM, extra=Extra.allow):#, ClsMixin):
     """OpenLlamaLLM is a custom LLM that uses the OpenLlamaModel."""
 
    

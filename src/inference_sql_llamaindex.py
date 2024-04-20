@@ -1,7 +1,7 @@
 from typing import Optional
 
 from modal import gpu, method, Retries
-from modal.cls import ClsMixin
+#from modal.cls import ClsMixin
 import json
 
 from .common import (
@@ -12,20 +12,11 @@ from .common import (
     get_model_path,
     generate_prompt_sql
 )
-from .inference_utils import OpenLlamaLLM
+from .inference_utils import OpenLlamaLLM1
 
-from llama_index.callbacks import CallbackManager
-from llama_index.llms import (
-    CustomLLM, 
-    LLMMetadata, 
-    CompletionResponse, 
-    CompletionResponseGen,
-)
-from llama_index.llms.base import llm_completion_callback
-from llama_index.indices.struct_store.sql_query import NLSQLTableQueryEngine
-from llama_index import SQLDatabase, ServiceContext, Prompt
+from llama_index.core.indices.struct_store.sql_query import NLSQLTableQueryEngine
+from llama_index.core import SQLDatabase, ServiceContext, Prompt
 from typing import Any
-
 
 @stub.function(
     gpu="A100",
@@ -42,6 +33,8 @@ def run_query(query: str, model_dir: str = "data_sql", use_finetuned_model: bool
     """Run query."""
     import pandas as pd
     from sqlalchemy import create_engine
+    import os
+    os.environ["OPENAI_API_KEY"] = "your_key"
 
     # define SQL database
     assert "sqlite_data" in stub.data_dict
@@ -52,7 +45,7 @@ def run_query(query: str, model_dir: str = "data_sql", use_finetuned_model: bool
     print('setting up service context')
     # finetuned llama LLM
     num_output = 256
-    llm = OpenLlamaLLM(
+    llm = OpenLlamaLLM1(
         model_dir=model_dir, max_new_tokens=num_output, use_finetuned_model=use_finetuned_model
     )
     service_context = ServiceContext.from_defaults(llm=llm)
@@ -81,7 +74,7 @@ def print_response(response):
     print(
         f'*****Model output*****\n'
         f'SQL Query: {str(response.metadata["sql_query"])}\n'
-        f"Response: {response.response}\n"
+        #f"Response: {response.response}\n"
     )
 
 @stub.local_entrypoint()
@@ -99,5 +92,6 @@ def main(query: str, sqlite_file_path: str, model_dir: str = "data_sql", use_fin
         print_response(response_1)
     else:
         bool_toggle = use_finetuned_model == "True"
-        response = run_query.call(query, model_dir=model_dir, use_finetuned_model=bool_toggle)
+        response = run_query.remote(query, model_dir=model_dir, use_finetuned_model=bool_toggle)
         print_response(response)
+

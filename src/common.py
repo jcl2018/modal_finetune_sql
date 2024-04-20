@@ -35,7 +35,7 @@ openllama_image = (
         "accelerate==0.18.0",
         "bitsandbytes==0.37.0",
         "bitsandbytes-cuda117==0.26.0.post2",
-        "datasets==2.10.1",
+        "datasets==2.15.0",
         "fire==0.5.0",
         "gradio==3.23.0",
         "peft @ git+https://github.com/huggingface/peft.git@e536616888d51b453ed354a6f1e243fecb02ea08",
@@ -43,8 +43,9 @@ openllama_image = (
         "torch==2.0.0",
         "torchvision==0.15.1",
         "sentencepiece==0.1.97",
-        "llama-index==0.8.1",
+        "llama-index",
         "sentence-transformers",
+        "fsspec==2023.9.2"
     )
     .run_function(download_models)
     .pip_install("wandb==0.15.0")

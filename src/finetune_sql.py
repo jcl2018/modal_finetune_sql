@@ -27,7 +27,8 @@ def _train(
     # training hyperparams
     batch_size: int = 128,
     micro_batch_size: int = 32,
-    max_steps: int = 200,
+    num_train_epochs = 10,
+    max_steps: int = 50,
     learning_rate: float = 3e-4,
     cutoff_len: int = 512,
     val_set_size: int = 100,
@@ -180,7 +181,7 @@ def _train(
         args=transformers.TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
-            warmup_steps=100,
+            warmup_steps=10,
             max_steps=max_steps,
             learning_rate=learning_rate,
             fp16=True,
@@ -222,7 +223,7 @@ def _train(
 @stub.function(
     gpu="A100",
     # TODO: Modal should support optional secrets.
-    secret=Secret.from_name("my-wandb-secret") if WANDB_PROJECT else None,
+    #secrets= None,#[Secret.from_name("my-wandb-secret")], # if WANDB_PROJECT else None,
     timeout=60 * 60 * 2,
     network_file_systems={VOL_MOUNT_PATH: output_vol},
     cloud="oci",
@@ -242,9 +243,9 @@ def finetune(data_dir: str = "data_sql", model_dir: str = "data_sql"):
         MODEL_PATH,
         data,
         val_set_size=val_set_size,
-        output_dir=get_model_path(model_dir).as_posix(),
-        wandb_project=WANDB_PROJECT,
-        wandb_run_name=f"openllama-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+        output_dir=get_model_path(model_dir).as_posix()
+        #wandb_project=WANDB_PROJECT,
+        #wandb_run_name=f"openllama-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
     )
 
     # # Delete scraped data after fine-tuning
